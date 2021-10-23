@@ -1,36 +1,58 @@
-# Extract narrations and save into single file
-## Requirements
+# 音声つきパワポから音声を抽出し、速度を調整して一つのファイルに結合する
 
-### Software
-- ffmpeg or libav
+## これは何？
+
+世にあふれる音声付きpptxファイルから音声のみを取り出し、速度を調整した上で一つのmp3ファイルに結合します。
+この際、各スライドに対応する開始タイミングを一覧形式で記載したテキストファイルが同時に出力されます。
+
+音声つきpptxをPDFとmp3ファイルに分けることで容量の削減も期待されます。
+
+## 要求環境
+
+### ソフトウェアの用意
+- ffmpeg または libav
 
 Linux
 
-`sudo apt install ffmpeg libavcodec-extra`
+1. `sudo apt install ffmpeg libavcodec-extra`
+2. 下の"Pythonパッケージのインストール"を行う
 
 Mac
 
-`brew install ffmpeg`
+1. `brew install ffmpeg`
+2. 下の"Pythonパッケージのインストール"を行う
 
-Windows
-1. Download and extract libav from [here](http://builds.libav.org/windows/)
-2. Add the libav /bin folder to your PATH
+Windows (**WSL環境が必要です**)
+1. WSLをインストール済みであることを確認する。
+2. wsl_setup.ps1を右クリックし、メニュー中の"PowerShellで実行"をクリックする。
+3. WSLが立ち上がるので、パスワードを入力する。
+4. 終了。以下の"Pythonパッケージ"の欄を行う必要はありません。
 
-### Python package
+### Pythonパッケージのインストール
+
+Requirements
 - pydub
 - tqdm
 
-Version of the packages are arbitrary.
+パッケージのバージョンは任意です。以下のコマンドによって全てインストールできます。
 
-Please install them by executing:
 `pip install -r requirements.txt`
 
-## Usage
+## 使い方
 
-python extractor.py [OPTIONS] PPTX_FILE
+Linux or Mac
 
-Options:
+`python extractor.py [OPTIONS] PPTX_FILE`
 
-   --speed : the desired speed of the output audio (ex: 1.2).  **Note: any value lower than 1.0 is currently not supported.**
+オプション:
 
-## 
+   --speed : 音声を何倍速にしたいかを指定します。(例: 1.2) そのままの速度にしたい場合は使用しないでください。 **注意: 1.0未満の数値を入力した場合、プログラムは正しく動作しません。**
+
+Windows
+
+1. pptxファイルを`win_extractor.bat`にドラッグアンドドロップする
+2. 音声の速度を変更したい場合は数値を入力し、もとの速度で良い場合はそのままでEnter
+
+## 注意
+
+実装上、1.6倍速より速いファイルを生成する場合は処理にかかる時間が長くなります。
