@@ -5,13 +5,15 @@
 - ffmpeg or libav
 
 Linux
+
 `sudo apt install ffmpeg libavcodec-extra`
 
 Mac
+
 `brew install ffmpeg`
 
 Windows
-1. Download and extract libav from (here)[http://builds.libav.org/windows/]
+1. Download and extract libav from [here](http://builds.libav.org/windows/)
 2. Add the libav /bin folder to your PATH
 
 ### Python package
