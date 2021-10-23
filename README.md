@@ -7,6 +7,10 @@
 
 音声つきpptxをPDFとmp3ファイルに分けることで容量の削減も期待されます。
 
+## ダウンロード
+
+[こちら](https://github.com/t0d4/pptx-narration-extractor/releases)からどうぞ
+
 ## 要求環境
 
 ### ソフトウェアの用意
@@ -24,7 +28,7 @@ Mac
 
 Windows (**WSL環境が必要です**)
 1. WSLをインストール済みであることを確認する。
-2. wsl_setup.ps1を右クリックし、メニュー中の"PowerShellで実行"をクリックする。
+2. ダウンロードしたフォルダの中にあるwin_setupフォルダ内のwsl_setup.ps1を右クリックし、メニュー中の"PowerShellで実行"をクリックする。
 3. WSLが立ち上がるので、パスワードを入力する。
 4. 終了。以下の"Pythonパッケージ"の欄を行う必要はありません。
 
@@ -42,7 +46,8 @@ Requirements
 
 Linux or Mac
 
-`python extractor.py [OPTIONS] PPTX_FILE`
+1. `python extractor.py [OPTIONS] PPTX_FILE`
+2. audioフォルダにmp3ファイルが生成される
 
 オプション:
 
@@ -51,7 +56,9 @@ Linux or Mac
 Windows
 
 1. pptxファイルを`win_extractor.bat`にドラッグアンドドロップする
-2. 音声の速度を変更したい場合は数値を入力し、もとの速度で良い場合はそのままでEnter
+2. Windowsによって警告が表示されるので、開発者を信頼する場合は"詳細情報"を押して"実行"を押す
+3. 音声の速度を変更したい場合は数値を入力し、もとの速度で良い場合はそのままでEnterを押す
+4. audioフォルダにmp3ファイルが生成される
 
 ## 注意
 
