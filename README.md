@@ -9,7 +9,7 @@
 
 ## ダウンロード
 
-[こちら](https://github.com/t0d4/pptx-narration-extractor/releases)からどうぞ
+[こちら](https://github.com/t0d4/pptx-narration-extractor/releases/latest)からどうぞ
 
 ## 要求環境
 
