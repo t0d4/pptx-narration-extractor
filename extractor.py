@@ -41,6 +41,7 @@ def main() -> None:
     parser.add_argument('--speed', metavar='{float value}', type=float, help='the relative speed of output audio file (ex: 1.2)')
     args = parser.parse_args()
     pptx_filename = args.filename
+    pptx_basename = os.path.basename(pptx_filename).replace(" ", "_")
     desired_speed = args.speed
 
     if desired_speed is not None:
@@ -91,16 +92,13 @@ def main() -> None:
                 media_filename = os.path.basename(media_filepath)
                 extension = get_extension(media_filename)
                 if extension in ("m4a", "wav", "wma") and media_filename not in audio_filenames_in_the_slide:
-                    audio_extension = extension
                     audio_filenames_in_the_slide.append(media_filename)
         audio_filenames_in_the_file.append(audio_filenames_in_the_slide)
-
-    TRANSITION_BEEP_SOUND = os.path.join(TRANSITION_SOUND_DIR, f'beep.{audio_extension}')
 
     basetime = datetime.datetime(year=2021, month=1, day=1, hour=0, minute=0, second=0)  # year, month and day are dummy values
     elapsed_second = 0
     merged_audio = None
-    with open(os.path.join(OUTPUT_DIR, f"chapters-{pptx_filename}.txt"), "w+") as chapter_file:
+    with open(os.path.join(OUTPUT_DIR, f"chapters-{pptx_basename}.txt"), "w+") as chapter_file:
         for slide_idx, audio_filenames_in_the_slide in enumerate(tqdm(audio_filenames_in_the_file, "Processing audio files")):
             if audio_filenames_in_the_slide == []:
                 continue
@@ -111,7 +109,13 @@ def main() -> None:
             for audio_filename in audio_filenames_in_the_slide:
                 audio = AudioSegment.from_file(os.path.join(MEDIA_DIR, audio_filename))
                 if desired_speed is not None:
-                    audio = audio.speedup(playback_speed=desired_speed, chunk_size=150, crossfade=25)
+                    if desired_speed <= 1.4:
+                        chunk_size = 150
+                    elif 1.4 < desired_speed <= 1.6:
+                        chunk_size = 100
+                    else:
+                        chunk_size = 50
+                    audio = audio.speedup(playback_speed=desired_speed, chunk_size=chunk_size, crossfade=25)
                 
                 # When process the first audio file 
                 if merged_audio is None:
@@ -126,7 +130,7 @@ def main() -> None:
                 merged_audio += appended_sound
                 elapsed_second += appended_sound.duration_seconds
 
-            merged_audio.export(os.path.join(OUTPUT_DIR, f"narration-{pptx_filename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
+            merged_audio.export(os.path.join(OUTPUT_DIR, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
 
     print("Done.")
 
