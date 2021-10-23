@@ -77,7 +77,7 @@ def main() -> None:
             if current_os in ("Linux", "macOS"):
                 subprocess.run(f"unzip -o {pptx_filepath} -d {TMP_DIR}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                print("You are using such a rare OS. There's nothing I can do for you anymore.")
+                print("Are you using Windows? If so, please read README again and use win_extractor.bat")
                 sys.exit(0)
 
     slide_xmls = glob.glob(os.path.join(XML_DIR, "*.xml.rels"))
