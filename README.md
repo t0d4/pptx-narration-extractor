@@ -30,4 +30,7 @@ Please install them by executing:
 python extractor.py [OPTIONS] PPTX_FILE
 
 Options:
- --speed : the desired speed of the output audio (ex: 1.2) **Note: any value lower than 1.0 is currently not supported.**
+
+   --speed : the desired speed of the output audio (ex: 1.2).  **Note: any value lower than 1.0 is currently not supported.**
+
+## 
