@@ -18,7 +18,6 @@ from tqdm import tqdm
 # Choose from 'low', 'medium', 'high'. The better the quality is, the bigger the output becomes.
 SOUND_QUALITY = 'medium'
 
-OUTPUT_DIR = pathlib.Path("output/")
 TMP_DIR = pathlib.Path("tmp/")
 XML_DIR = os.path.join(TMP_DIR, "ppt/slides/_rels/")
 MEDIA_DIR = os.path.join(TMP_DIR, pathlib.Path("ppt/media"))
@@ -37,11 +36,13 @@ def match_audio_volume(modulated_sound: AudioSegment, base_sound: AudioSegment) 
 def main() -> None:
 
     parser = argparse.ArgumentParser(description='Extract narrations from slides and combine them into single mp3 file.')
-    parser.add_argument('filename', metavar='{path to pptx}', type=str, help='the target pptx file.')
+    parser.add_argument('filepath', metavar='{path to pptx}', type=str, help='path to the target pptx file.')
     parser.add_argument('--speed', metavar='{float value}', type=float, help='the relative speed of output audio file (ex: 1.2)')
     args = parser.parse_args()
-    pptx_filename = args.filename
-    pptx_basename = os.path.basename(pptx_filename).replace(" ", "_")
+    pptx_filepath = args.filepath
+    pptx_dirpath = os.path.dirname(pptx_filepath)
+    output_dir = os.path.join(pptx_dirpath, pathlib.Path("audio/"))
+    pptx_basename = os.path.basename(pptx_filepath).replace(" ", "_")
     desired_speed = args.speed
 
     if desired_speed is not None:
@@ -49,7 +50,7 @@ def main() -> None:
             print("values lower than 1.0 is not supported for parameter \"speed\".")
             sys.exit(0)
 
-    if not os.path.exists(pptx_filename):
+    if not os.path.exists(pptx_filepath):
         print("Couldn't find such pptx file.")
         sys.exit(0)
 
@@ -58,8 +59,8 @@ def main() -> None:
         sys.exit(0)
 
     os.mkdir(TMP_DIR)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with zipfile.ZipFile(pptx_filename) as pptx_file:
+    os.makedirs(output_dir, exist_ok=True)
+    with zipfile.ZipFile(pptx_filepath) as pptx_file:
         try:
             pptx_file.extractall(TMP_DIR)
         except zipfile.BadZipfile:
@@ -70,10 +71,11 @@ def main() -> None:
                 sys.exit(0)
             
             current_os = platform.system()
-            if current_os == "Windows":
-                subprocess.run(f'call powershell -command "Expand-Archive -Force {pptx_filename} {TMP_DIR}"', encoding="shift-jis", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            elif current_os in ("Linux", "macOS"):
-                subprocess.run(f"unzip -o {pptx_filename} -d {TMP_DIR}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # # Windows very often fails to extract pptx so currently deprecated
+            # if current_os == "Windows":
+            #     subprocess.run(f'call powershell -command "Expand-Archive -Force {pptx_filepath} {TMP_DIR}"', encoding="shift-jis", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if current_os in ("Linux", "macOS"):
+                subprocess.run(f"unzip -o {pptx_filepath} -d {TMP_DIR}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
                 print("You are using such a rare OS. There's nothing I can do for you anymore.")
                 sys.exit(0)
@@ -98,7 +100,7 @@ def main() -> None:
     basetime = datetime.datetime(year=2021, month=1, day=1, hour=0, minute=0, second=0)  # year, month and day are dummy values
     elapsed_second = 0
     merged_audio = None
-    with open(os.path.join(OUTPUT_DIR, f"chapters-{pptx_basename}.txt"), "w+") as chapter_file:
+    with open(os.path.join(output_dir, f"chapters-{pptx_basename}.txt"), "w+") as chapter_file:
         for slide_idx, audio_filenames_in_the_slide in enumerate(tqdm(audio_filenames_in_the_file, "Processing audio files")):
             if audio_filenames_in_the_slide == []:
                 continue
@@ -130,7 +132,7 @@ def main() -> None:
                 merged_audio += appended_sound
                 elapsed_second += appended_sound.duration_seconds
 
-            merged_audio.export(os.path.join(OUTPUT_DIR, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
+            merged_audio.export(os.path.join(output_dir, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
 
     print("Done.")
 
