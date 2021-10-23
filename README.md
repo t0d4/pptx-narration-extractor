@@ -7,6 +7,8 @@
 
 音声つきpptxをPDFとmp3ファイルに分けることで容量の削減も期待されます。
 
+![イメージ](https://user-images.githubusercontent.com/37496476/138551995-88ab3f40-b833-4d18-b84b-5d70efce2b03.png)
+
 ## ダウンロード
 
 [こちら](https://github.com/t0d4/pptx-narration-extractor/releases/latest)からどうぞ
