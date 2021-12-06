@@ -4,6 +4,7 @@ import glob
 import os
 import pathlib
 import platform
+import random
 import re
 import shutil
 import subprocess
@@ -18,10 +19,13 @@ from tqdm import tqdm
 # Choose from 'low', 'medium', 'high'. The better the quality is, the bigger the output becomes.
 SOUND_QUALITY = 'medium'
 
-TMP_DIR = pathlib.Path("tmp/")
+SCRIPT_DIR = os.path.dirname(__file__)
+TMP_DIR = pathlib.Path(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
+while os.path.exists(TMP_DIR):  # Rename the folder for temporary workspace when that name already exists
+    TMP_DIR = pathlib.Path(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
 XML_DIR = os.path.join(TMP_DIR, "ppt/slides/_rels/")
 MEDIA_DIR = os.path.join(TMP_DIR, pathlib.Path("ppt/media"))
-TRANSITION_SOUND_DIR = pathlib.Path("beeps/")
+TRANSITION_SOUND_DIR = pathlib.Path(os.path.join(SCRIPTTMP_DIR = pathlib.Path(SCRIPT_DIR, "beeps/")))
 
 PATTERN_TO_EXTRACT_SLIDE_NUM = re.compile(r'.*slide(\d+).xml.rels')
 SAMPLING_FREQUENCIES = {'low': 8000, 'medium': 22050, 'high': 44100}
@@ -54,10 +58,6 @@ def main() -> None:
         print("Couldn't find such pptx file.")
         sys.exit(0)
 
-    if os.path.exists(TMP_DIR):
-        print("Found a folder named \"tmp\". Remove it and try again")
-        sys.exit(0)
-
     os.mkdir(TMP_DIR)
     os.makedirs(output_dir, exist_ok=True)
     with zipfile.ZipFile(pptx_filepath) as pptx_file:
@@ -69,7 +69,7 @@ def main() -> None:
             if answer == 'n':
                 print("Aborted.")
                 sys.exit(0)
-            
+
             current_os = platform.system()
             # # Windows very often fails to extract pptx so currently deprecated
             # if current_os == "Windows":
