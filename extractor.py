@@ -2,7 +2,6 @@ import argparse
 import datetime
 import glob
 import os
-import pathlib
 import platform
 import random
 import re
@@ -20,12 +19,12 @@ from tqdm import tqdm
 SOUND_QUALITY = 'medium'
 
 SCRIPT_DIR = os.path.dirname(__file__)
-TMP_DIR = pathlib.Path(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
+TMP_DIR = os.path.join(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
 while os.path.exists(TMP_DIR):  # Rename the folder for temporary workspace when that name already exists
-    TMP_DIR = pathlib.Path(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
+    TMP_DIR = os.path.join(SCRIPT_DIR, f"tmp{random.randint(0, 100000)}/")
 XML_DIR = os.path.join(TMP_DIR, "ppt/slides/_rels/")
-MEDIA_DIR = os.path.join(TMP_DIR, pathlib.Path("ppt/media"))
-TRANSITION_SOUND_DIR = pathlib.Path(os.path.join(SCRIPTTMP_DIR = pathlib.Path(SCRIPT_DIR, "beeps/")))
+MEDIA_DIR = os.path.join(TMP_DIR, "ppt/media")
+TRANSITION_SOUND_DIR = os.path.join(SCRIPT_DIR, "beeps/")
 
 PATTERN_TO_EXTRACT_SLIDE_NUM = re.compile(r'.*slide(\d+).xml.rels')
 SAMPLING_FREQUENCIES = {'low': 8000, 'medium': 22050, 'high': 44100}
@@ -45,7 +44,7 @@ def main() -> None:
     args = parser.parse_args()
     pptx_filepath = args.filepath
     pptx_dirpath = os.path.dirname(pptx_filepath)
-    output_dir = os.path.join(pptx_dirpath, pathlib.Path("audio/"))
+    output_dir = os.path.join(pptx_dirpath, "audio/")
     pptx_basename = os.path.basename(pptx_filepath).replace(" ", "_")
     desired_speed = args.speed
 
@@ -68,6 +67,9 @@ def main() -> None:
             answer = input("[Y/n]:")
             if answer == 'n':
                 print("Aborted.")
+                shutil.rmtree(TMP_DIR)
+                if not os.listdir(output_dir):
+                    os.rmdir(output_dir)
                 sys.exit(0)
 
             current_os = platform.system()
