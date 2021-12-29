@@ -1,6 +1,6 @@
 #!/bin/bash
 DISPLAY=''
-sudo apt update && sudo apt install -y ffmpeg libavcodec-extra
+sudo apt update && sudo apt install -y ffmpeg libavcodec-extra unzip
 yes | pip install -r ../requirements.txt --quiet
 if [ $? -eq 0 ]; then
 echo "Done."
