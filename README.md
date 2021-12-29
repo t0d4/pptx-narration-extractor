@@ -21,7 +21,7 @@
 
 Linux
 
-1. `sudo apt install ffmpeg libavcodec-extra`
+1. `sudo apt install ffmpeg libavcodec-extra unzip`
 2. 下の"Pythonパッケージのインストール"を行う
 
 Mac
