@@ -16,11 +16,12 @@
 ## 要求環境
 
 ### 外部ソフトウェアの用意
+- unzip
 - ffmpeg
 
 Linux
 
-1. `sudo apt install ffmpeg libavcodec-extra`
+1. `sudo apt install ffmpeg libavcodec-extra unzip`
 2. 下の"Pythonパッケージのインストール"を行う
 
 Mac
