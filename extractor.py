@@ -92,7 +92,7 @@ def main() -> None:
 
     if desired_speed is not None:
         if desired_speed < 1.0:
-            print("values lower than 1.0 are not supported for parameter \"speed\".")
+            print("Values lower than 1.0 are not supported for parameter \"speed\".")
             sys.exit(0)
 
     if not os.path.exists(pptx_filepath):
