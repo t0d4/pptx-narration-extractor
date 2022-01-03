@@ -92,7 +92,7 @@ def main() -> None:
 
     if desired_speed is not None:
         if desired_speed < 1.0:
-            print("values lower than 1.0 are not supported for parameter \"speed\".")
+            print("Values lower than 1.0 are not supported for parameter \"speed\".")
             sys.exit(0)
 
     if not os.path.exists(pptx_filepath):
@@ -177,6 +177,7 @@ def main() -> None:
                 merged_audio += appended_sound
                 elapsed_second += appended_sound.duration_seconds
 
+        print("Exporting...")
         merged_audio.export(os.path.join(output_dir, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
 
     print("Done.")
