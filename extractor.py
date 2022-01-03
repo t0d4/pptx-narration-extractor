@@ -181,7 +181,5 @@ def main() -> None:
 
     print("Done.")
 
-    shutil.rmtree(TMP_DIR)
-
 if __name__ == '__main__':
     main()
