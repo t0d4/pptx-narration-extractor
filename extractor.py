@@ -177,6 +177,7 @@ def main() -> None:
                 merged_audio += appended_sound
                 elapsed_second += appended_sound.duration_seconds
 
+        print("Exporting...")
         merged_audio.export(os.path.join(output_dir, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
 
     print("Done.")
