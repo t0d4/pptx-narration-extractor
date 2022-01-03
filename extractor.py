@@ -1,4 +1,5 @@
 import argparse
+import atexit
 import datetime
 import glob
 import os
@@ -15,6 +16,14 @@ from pydub import AudioSegment
 from pydub import effects
 from tqdm import tqdm
 
+# Sequences to colorize messages
+class Colors:
+    RED = '\033[31m'
+    YELLOW = '\033[33m'
+    END = '\033[0m'
+    BOLD = '\038[1m'
+    UNDERLINE = '\033[4m'
+
 # Choose from 'low', 'medium', 'high'. The better the quality is, the bigger the output becomes.
 SOUND_QUALITY = 'medium'
 
@@ -29,10 +38,40 @@ TRANSITION_SOUND_DIR = os.path.join(SCRIPT_DIR, "beeps/")
 PATTERN_TO_EXTRACT_SLIDE_NUM = re.compile(r'.*slide(\d+).xml.rels')
 SAMPLING_FREQUENCIES = {'low': 8000, 'medium': 22050, 'high': 44100}
 
+def cleanup_files(tmp_paths: list) -> None:
+    """
+    Delete temporary files.
+
+    Parameters
+    ----------
+    tmp_paths: list
+        List object containing paths of files/dirs to be deleted
+    """
+    for path in tmp_paths:
+        shutil.rmtree(path)
+
 def get_extension(filename: str) -> str:
+    """
+    Extract extension from a filename.
+
+    Parameters
+    ----------
+    filename: str
+        Filename containing extension
+    """
     return filename.split(".")[-1]
 
 def match_audio_volume(modulated_sound: AudioSegment, base_sound: AudioSegment) -> AudioSegment:
+    """
+    Adjust volume of audio file so that it matchs volume of another audio file.
+
+    Parameters
+    ----------
+    modulated_sound: AudioSegment
+        AudioSegment object whose volume will be modulated
+    base_sound: AudioSegment
+        AudioSegment object whose volume modulated_sound will be adjusted to
+    """
     change_of_dbFS = base_sound.dBFS - modulated_sound.dBFS - 20  # Adjustment
     return modulated_sound.apply_gain(change_of_dbFS)
 
@@ -48,9 +87,12 @@ def main() -> None:
     pptx_basename = os.path.basename(pptx_filepath).replace(" ", "_")
     desired_speed = args.speed
 
+    # Make sure TMP_DIR will be erased at exit
+    atexit.register(cleanup_files, [TMP_DIR])
+
     if desired_speed is not None:
         if desired_speed < 1.0:
-            print("values lower than 1.0 is not supported for parameter \"speed\".")
+            print("values lower than 1.0 are not supported for parameter \"speed\".")
             sys.exit(0)
 
     if not os.path.exists(pptx_filepath):
@@ -58,7 +100,6 @@ def main() -> None:
         sys.exit(0)
 
     os.mkdir(TMP_DIR)
-    os.makedirs(output_dir, exist_ok=True)
     with zipfile.ZipFile(pptx_filepath) as pptx_file:
         try:
             pptx_file.extractall(TMP_DIR)
@@ -67,9 +108,6 @@ def main() -> None:
             answer = input("[Y/n]:")
             if answer == 'n':
                 print("Aborted.")
-                shutil.rmtree(TMP_DIR)
-                if not os.listdir(output_dir):
-                    os.rmdir(output_dir)
                 sys.exit(0)
 
             current_os = platform.system()
@@ -99,6 +137,11 @@ def main() -> None:
                     audio_filenames_in_the_slide.append(media_filename)
         audio_filenames_in_the_file.append(audio_filenames_in_the_slide)
 
+    if all(list(map(lambda list: list == [], audio_filenames_in_the_file))):
+        print(Colors.RED+'No slide of this file has an embedded narration!'+Colors.END)
+        sys.exit(0)
+
+    os.makedirs(output_dir, exist_ok=True)
     basetime = datetime.datetime(year=2021, month=1, day=1, hour=0, minute=0, second=0)  # year, month and day are dummy values
     elapsed_second = 0
     merged_audio = None
@@ -120,7 +163,7 @@ def main() -> None:
                     else:
                         chunk_size = 50
                     audio = audio.speedup(playback_speed=desired_speed, chunk_size=chunk_size, crossfade=25)
-                
+
                 # When process the first audio file 
                 if merged_audio is None:
                     transition_sound_filename = os.path.join(TRANSITION_SOUND_DIR, f'beep.{get_extension(audio_filename)}')
@@ -134,7 +177,7 @@ def main() -> None:
                 merged_audio += appended_sound
                 elapsed_second += appended_sound.duration_seconds
 
-            merged_audio.export(os.path.join(output_dir, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
+        merged_audio.export(os.path.join(output_dir, f"narration-{pptx_basename}.mp3"), format="mp3", parameters=["-ac", "2", "-ar", str(SAMPLING_FREQUENCIES.get(SOUND_QUALITY))])
 
     print("Done.")
 
